@@ -4,18 +4,12 @@ const router = express.Router();
 const Partie = require('../models/Partie');
 const User = require('../models/User');
 
-//GET -> obtenir les parties d'un utilisateur / Obtenir les parties publiques / Obtenir tous les parties
+//GET -> obtenir les parties d'un utilisateur / Obtenir tous les parties
 router.get('/', async (req,res) => {
     try {
         let foundParties;
         if (req.query.userId != null) {
             foundParties = await Partie.find({'users.user.id': req.query.userId});
-        } else if(req.query.type != null) {
-            if(req.query.type === 1){
-                foundParties = await Partie.find({type: req.query.type});
-            } else {
-                foundParties = {message:'Unauthorized value in \'type\' parameter'}
-            }
         } else {
             foundParties = await Partie.find();
         }
@@ -26,16 +20,31 @@ router.get('/', async (req,res) => {
     }
 });
 
-//GET -> obtenir une partie par id / obtenir une partie par code
-router.get('/:id', async (req,res) => {
+//GET -> Obtenir les parties publiques
+router.get('/publiques', async (req,res) => {
     try {
-        let foundPartie;
-        if(isNaN(req.query.code)){
-            foundPartie = await Partie.findById(req.params.id);
-        } else {
-            foundPartie = await Partie.findOne({code:req.params.id})
-        }
+        let foundParties = await Partie.find({type: 1});
+        res.json(foundParties);
+    }catch (error) {
+        // res.status(400).json({error: 'parameter \'userId\' not defined'});
+        res.status(400).json({message:error});
+    }
+});
 
+//GET -> obtenir une partie par id
+router.get('/:id/id', async (req,res) => {
+    try {
+        let foundPartie = await Partie.findById(req.params.id);
+        res.json(foundPartie);
+    } catch (error) {
+        res.status(404).json({message:error});
+    }
+});
+
+//GET -> obtenir une partie par code
+router.get('/:id/code', async (req,res) => {
+    try {
+        let foundPartie = await Partie.findOne({code:req.params.id});
         res.json(foundPartie);
     } catch (error) {
         res.status(404).json({message:error});
@@ -45,6 +54,7 @@ router.get('/:id', async (req,res) => {
 //POST -> créer une partie
 router.post('/',async (req, res) => {
     let partie = new Partie({
+        nom: req.body.nom,
         difficulte: req.body.difficulte,
         type: req.body.type
     });
@@ -98,12 +108,30 @@ router.put('/:id', async (req, res) => {
                 {_id: req.params.id},
                 {
                     $set: {
+                        nom: req.body.nom,
                         difficulte: req.body.difficulte,
                         type: req.body.type
                     }
                 }
             );
         }
+        res.json(modifiedPartie);
+    } catch (error) {
+        res.status(400).json({message:error});
+    }
+});
+
+//PUT -> Insérer les données du labyrinthe
+router.put('/:id/labyrinthe', async (req,res) => {
+    try{
+        let modifiedPartie = await Partie.updateOne(
+            {_id: req.params.id},
+            {
+                $set: {
+                    labyrinthe: req.body.labyrinthe
+                }
+            }
+        );
         res.json(modifiedPartie);
     } catch (error) {
         res.status(400).json({message:error});
