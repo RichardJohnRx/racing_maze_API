@@ -3,6 +3,7 @@ const router = express.Router();
 
 const Partie = require('../models/Partie');
 const User = require('../models/User');
+const Base64 = require('../utils/base64_encoder');
 
 //GET -> obtenir les parties d'un utilisateur / Obtenir tous les parties
 router.get('/', async (req,res) => {
@@ -58,8 +59,8 @@ router.post('/',async (req, res) => {
         difficulte: req.body.difficulte,
         type: req.body.type
     });
-    if(req.body.code != null && req.body.type === 2){
-        partie.code = req.body.code;
+    if(req.body.type === 2){
+        partie.code = Base64.encoder(partie._id);
     }
     try{
         let savedPartie = await partie.save();
@@ -70,7 +71,7 @@ router.post('/',async (req, res) => {
 });
 
 //DELETE -> supprimer une partie
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', async (req, res) => {
     try {
         let deletedPartie = await Partie.deleteOne({_id: req.params.id});
         res.json(deletedPartie);
