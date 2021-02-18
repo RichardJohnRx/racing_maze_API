@@ -16,7 +16,10 @@ const user = new mongoose.Schema({
 
 const userData = new mongoose.Schema({
     user: user,
-    type: Number, // 1 - Créateur, 2 - Invité
+    type: {
+        type:Number, // 1 - Créateur, 2 - Invité
+        default: 2
+    },
     place: Number,
     score: Number,
     temps: String
@@ -80,7 +83,6 @@ const schema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    createur: userData,
     users : {
         type: [userData],
         default: null

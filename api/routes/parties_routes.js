@@ -10,7 +10,7 @@ router.get('/', async (req,res) => {
     try {
         let foundParties;
         if (req.query.userId != null) {
-            foundParties = await Partie.find({'users.user.id': req.query.userId});
+            foundParties = await Partie.find({'users.user._id': req.query.userId});
         } else {
             foundParties = await Partie.find();
         }
@@ -54,10 +54,25 @@ router.get('/:id/code', async (req,res) => {
 
 //POST -> créer une partie
 router.post('/',async (req, res) => {
+    let foundUser = await User.findById(req.body.user.id);
     let partie = new Partie({
         nom: req.body.nom,
         difficulte: req.body.difficulte,
-        type: req.body.type
+        type: req.body.type,
+
+        users: {
+            user:{
+                _id: foundUser._id,
+                prenom: foundUser.prenom,
+                nom: foundUser.nom,
+                username: foundUser.username,
+                personnage: foundUser.personnage
+            },
+            type: 1,
+            place: null,
+            score: null,
+            temps: null
+        }
     });
     if(req.body.type === 2){
         partie.code = Base64.encoder(partie._id);
@@ -80,42 +95,48 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-//PUT -> modifier les données d'une partie / ajouter un utilisateur à une partie
+//PUT -> modifier les données d'une partie
 router.put('/:id', async (req, res) => {
     try{
-        let modifiedPartie;
-        if(req.body.user != null){
-            let foundUser = await User.findById(req.body.user.id);
-            modifiedPartie = await Partie.updateOne(
-                {_id: req.params.id},
-                {
-                    $push:{
-                        users: {
-                            user:{
-                                prenom: foundUser.prenom,
-                                nom: foundUser.nom,
-                                username: foundUser.username,
-                                personnage: foundUser.personnage
-                            },
-                            place: null,
-                            score: null,
-                            temps: null
-                        }
+        let modifiedPartie = await Partie.updateOne(
+            {_id: req.params.id},
+            {
+                $set: {
+                    nom: req.body.nom,
+                    difficulte: req.body.difficulte,
+                    type: req.body.type
+                }
+            }
+        );
+        res.json(modifiedPartie);
+    } catch (error) {
+        res.status(400).json({message:error});
+    }
+});
+
+//PUT -> ajouter un utilisateur à une partie
+router.put('/:id/user', async (req, res) => {
+    try{
+        let foundUser = await User.findById(req.body.user.id);
+        let modifiedPartie = await Partie.updateOne(
+            {_id: req.params.id},
+            {
+                $push:{
+                    users: {
+                        user:{
+                            _id: foundUser._id,
+                            prenom: foundUser.prenom,
+                            nom: foundUser.nom,
+                            username: foundUser.username,
+                            personnage: foundUser.personnage
+                        },
+                        place: null,
+                        score: null,
+                        temps: null
                     }
                 }
-            );
-        } else {
-            modifiedPartie = await Partie.updateOne(
-                {_id: req.params.id},
-                {
-                    $set: {
-                        nom: req.body.nom,
-                        difficulte: req.body.difficulte,
-                        type: req.body.type
-                    }
-                }
-            );
-        }
+            }
+        );
         res.json(modifiedPartie);
     } catch (error) {
         res.status(400).json({message:error});
