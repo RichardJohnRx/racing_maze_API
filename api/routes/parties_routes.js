@@ -160,4 +160,14 @@ router.put('/:id/labyrinthe', async (req,res) => {
     }
 });
 
+//POST -> Se connecter
+router.post('/login',async (req,res) => {
+
+});
+
+//DELETE -> Se déconnecter
+router.post('/logout',async (req,res) => {
+
+});
+
 module.exports = router;
