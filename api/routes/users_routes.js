@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+const {Base64} = require('js-base64');
+const phash = require('password-hash');
 
 const User = require("../models/User");
 
@@ -15,23 +18,34 @@ router.get('/', async (req, res, next) => {
 
 //GET -> obtenir un utilisateur par id
 router.get('/:id', async (req, res, next) => {
+    const auth = req.header('Authorization');
+    if(auth === undefined || auth === null || auth === '') return res.status(400).json({message:'Token not found'});
+    const hash = auth.split(' ')[1];
+    if(hash === undefined || hash === null || hash === '') return res.status(400).json({message:'Token not found'});
+
     try {
+        const verify = jwt.verify(auth.split(' ')[1], Base64.encode('racingmazeapitoken'));
         let foundUser = await User.findById(req.params.id);
-        res.json(foundUser);
+        if(foundUser !== null) {
+            res.json(foundUser);
+        } else {
+            res.status(404).json({message: 'User not found'});
+        }
     } catch (error) {
-        res.status(404).json({message:error});
+        res.status(400).json({message: error});
     }
 
 });
 
 //POST -> créer un nouvel utilisateur
 router.post('/',async (req, res, next) => {
+
     let user = new User({
         prenom: req.body.prenom,
         nom: req.body.nom,
         username: req.body.prenom+'.'+req.body.nom,
         email: req.body.email,
-        password: req.body.password,
+        password: phash.generate(req.body.password),
         personnage:{
             img: req.body.personnage.img
         }
@@ -44,8 +58,39 @@ router.post('/',async (req, res, next) => {
     }
 });
 
+//POST -> se connecter
+router.post('/login', async (req, res, next) => {
+    const auth = req.header('Authorization');
+    if(auth === undefined || auth === null || auth === '') return res.status(400).json({message:'Authentification not present'});
+
+    const params = Base64.decode(auth.split(' ')[1]).split(':');
+    const email = params[0];
+    const password = params[1];
+
+    try{
+        let loginUser = await User.findOne({email: email});
+        if(loginUser !== null && phash.verify(password,loginUser.password)){
+            const date = Date.now()
+            const token = jwt.sign({
+                iat: Math.floor(date/1000),
+                exp: Math.floor((date/1000)+3600),
+                iss: "https://api.racingmaze.web:10243/connexion",
+                aud: "https://api.racingmaze.web:10243",
+                id: loginUser._id
+            },Base64.encode('racingmazeapitoken'))
+            res.json({user:loginUser, token: token});
+        } else {
+            res.status(400).json({message:'Incorrect email or password'});
+        }
+
+    } catch (error){
+        res.status(400).json({message:error});
+    }
+});
+
 //DELETE -> supprimer un utilisateur
 router.delete('/:id', async (req, res, next) => {
+
     try {
         let deletedUser = await User.deleteOne({_id: req.params.id});
         res.json(deletedUser);
@@ -55,15 +100,22 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 //UPDATE -> modifier les données d'un utilisateur
-router.put('/:id', async (req, res) => {
+router.put('/', async (req, res) => {
+    const auth = req.header('Authorization');
+    if(auth === undefined || auth === null || auth === '') return res.status(400).json({message:'Token not found'});
+    const hash = auth.split(' ')[1];
+    if(hash === undefined || hash === null || hash === '') return res.status(400).json({message:'Token not found'});
+
     try {
+        const verify = jwt.verify(auth.split(' ')[1], Base64.encode('racingmazeapitoken'));
+
         let deletedUser = await User.updateOne(
-            {_id: req.params.id},
+            {_id: verify.id},
             {$set:{
                     prenom: req.body.prenom,
                     nom: req.body.nom,
                     email: req.body.email,
-                    password: req.body.password,
+                    password: phash.generate(req.body.password),
                     personnage:{
                         img: req.body.personnage.img
                     }

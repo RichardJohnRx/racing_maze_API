@@ -17,10 +17,15 @@
   },
   "homepage": "https://github.com/RichardJohnRx/racing_maze_API#readme",
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
     "express": "^4.17.1",
-    "mongoose": "^5.11.15"
+    "js-base64": "^3.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.11.15",
+    "password-hash": "^1.2.2"
   },
   "devDependencies": {
-    "bson": "^4.2.2"
+    "bson": "^4.2.2",
+    "nodemon": "^1.19.4"
   }
 }

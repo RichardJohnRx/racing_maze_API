@@ -5,6 +5,7 @@ const mongoDBConnection = require('./api/utils/mongodb_connection');
 const index_routes = require("./api/routes/index_routes");
 const users_routes = require("./api/routes/users_routes");
 const parties_routes = require("./api/routes/parties_routes");
+//const auth_routes = require("./api/routes/auth_routes");
 
 app.set('port',3000);
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use('/',index_routes);
 app.use('/users',users_routes);
 app.use('/parties',parties_routes);
+//app.use('/login',auth_routes);
 
 app.listen(app.get('port'),() => {
     console.log(`Server on port ${app.get('port')}`)

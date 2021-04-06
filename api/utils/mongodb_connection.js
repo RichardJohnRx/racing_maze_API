@@ -7,13 +7,13 @@ const mongoose = require("mongoose");
 // console.log(DB_NAME);
 
 //connexion à la bdd mongo
-mongoose.connect(`mongodb://localhost:27017/test`, {
+mongoose.connect(`mongodb://localhost:27017/racing_maze`, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
-    console.log(`Connection to DB ""`);
+    console.log(`Successfully connected to DB "Racing Maze"`);
 }).catch(() => {
-    console.log(`Connection to DB "" not successful`);
+    console.log(`Connection to DB "Racing Maze" not successful`);
 });
 
 module.exports = mongoose;
