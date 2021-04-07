@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 
 const mongoDBConnection = require('./api/utils/mongodb_connection');
@@ -6,6 +7,7 @@ const index_routes = require("./api/routes/index_routes");
 const users_routes = require("./api/routes/users_routes");
 const parties_routes = require("./api/routes/parties_routes");
 //const auth_routes = require("./api/routes/auth_routes");
+app.use(cors());
 
 app.set('port',3000);
 

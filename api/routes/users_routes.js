@@ -43,7 +43,7 @@ router.post('/',async (req, res, next) => {
     let user = new User({
         prenom: req.body.prenom,
         nom: req.body.nom,
-        username: req.body.prenom+'.'+req.body.nom,
+        username: req.body.email.split('@')[0],
         email: req.body.email,
         password: phash.generate(req.body.password),
         personnage:{
@@ -112,13 +112,14 @@ router.put('/', async (req, res) => {
         let deletedUser = await User.updateOne(
             {_id: verify.id},
             {$set:{
-                    prenom: req.body.prenom,
-                    nom: req.body.nom,
-                    email: req.body.email,
-                    password: phash.generate(req.body.password),
-                    personnage:{
-                        img: req.body.personnage.img
-                    }
+                        prenom: req.body.prenom,
+                        nom: req.body.nom,
+                        email: req.body.email,
+                        username: req.body.username,
+                        password: phash.generate(req.body.password),
+                        personnage:{
+                            img: req.body.personnage.img
+                        }
                 }});
         res.json(deletedUser);
     } catch (error) {
