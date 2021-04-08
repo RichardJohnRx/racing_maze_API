@@ -40,15 +40,10 @@ const position = new mongoose.Schema({
     row:Number
 });
 
-const coffre = new mongoose.Schema({
-    coffre: Number,
-    position: position
-});
-
 const coffres = new mongoose.Schema({
     nombre: Number,
     img: String,
-    positions:[coffre]
+    positions:[position]
 });
 
 const cle = new mongoose.Schema({
