@@ -197,7 +197,7 @@ router.put('/:id/user', async (req, res) => {
             );
             res.json(modifiedPartie);
         } else {
-            res.status(400).json({message:'The user is already in the game'});
+            res.status(200).json({message:'The user is already in the game'});
         }
     } catch (error) {
         res.status(400).json({message:error});
