@@ -111,7 +111,6 @@ router.post('/',async (req, res) => {
         if(req.body.type === 2){
             partie.code = GameCode.generate(partie._id);
         }
-
         let savedPartie = await partie.save();
         res.json(savedPartie);
     } catch(error){

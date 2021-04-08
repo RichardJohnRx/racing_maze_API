@@ -72,7 +72,6 @@ const schema = new mongoose.Schema({
     },
     code: {
         type:String,
-        unique: true
     },
     created_at : {
         type: Date,

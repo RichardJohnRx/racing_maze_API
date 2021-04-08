@@ -9,7 +9,7 @@ const parties_routes = require("./api/routes/parties_routes");
 //const auth_routes = require("./api/routes/auth_routes");
 app.use(cors());
 
-app.set('port',3000);
+app.set('port',3001);
 
 //API Racing Maze
 app.use(express.json());
